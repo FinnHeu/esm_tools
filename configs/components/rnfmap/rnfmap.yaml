@@ -66,7 +66,8 @@ rnfmap:
         further_reading:
           - rnfmap/rnfmap.env.yaml
         destination: rnfmap
-        runoff_file: '${input_dir}/runoff_maps${runoff_maps_name}_v1.1.nc'
+        #runoff_file: '${input_dir}/runoff_maps${runoff_maps_name}_v1.1.nc'
+        runoff_file: '${input_dir}/runoff_maps${runoff_maps_name}.nc'
       agrif:
         branch: agrif
 

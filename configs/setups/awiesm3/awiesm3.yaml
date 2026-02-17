@@ -25,7 +25,7 @@ general:
         develop:
             major_version: v3.4
             couplings:
-                - fesom-2.7+oifs-48r1+xios-2.5+lpj_guess-4.1.2
+                - fesom-2.6-main+oifs-48r1+xios-2.5+lpj_guess-4.1.2
             add_include_models:
                 - xios
             oasis_with_yac: false
@@ -37,7 +37,7 @@ general:
         develop-cc:
             major_version: v3.4
             couplings:
-                - fesom-2.7+oifs-48r1+xios-2.5+lpj_guess-4.1.2
+                - fesom-2.6-main+oifs-48r1+xios-2.5+lpj_guess-4.1.2
             add_include_models:
                 - xios
             oasis_with_yac: false
@@ -59,7 +59,7 @@ general:
 
     choose_computer.name:
         levante:
-            pool_dir: "/work/ab0246/a270092/input/"
+            pool_dir: "/work/ab0246/a270092/input"
         juwels:
             pool_dir: "/p/project/chhb19/jstreffi/input"
         aleph:
@@ -81,11 +81,12 @@ general:
 #########################################################################################
 
 oifs:
-    version: "48r1"
+    version: "48r1_lpjg_branch"
 
     # added 05.03.2025
-    git-repository: 'https://git.smhi.se/ec-earth/vendor/openifs/oifs48r1.git'
-    branch: 'main'
+    git-repository: 'https://git.smhi.se/sager/oifs48r1'
+    branch: 'lpj_guess_implementation'
+    #branch: 'invert_lpjg_recv_send+main' #use this branch if you want to use without the vegin.nc At the first timestep LPJG will recieve the data from the OIFS.
     #
     add_prepcompute_recipe: ["oasis_rmp_rst_to_input"]
 
@@ -108,13 +109,12 @@ oifs:
         "v3.4":
             version: "48r1"
             with_xios: true
-            build_type: 'release'
             comp_command: "./openifs-bundle create; ./openifs-bundle build --threads=32
-                --openifs-only --without-double-precision --with-cplng2 --with-oifs-xios
-                --build-type=${build_type} --install; chmod -R ${source_code_permissions} .; 
-                git config core.fileMode false; mv install/bin/ifsMASTER.SP install/bin/OpenIFS"
+                --openifs-only --without-single-precision --with-cplng2 --with-oifs-xios
+                --install; chmod -R ${source_code_permissions} .; git config core.fileMode
+                false; mv install/bin/ifsMASTER.DP install/bin/OpenIFS"
             namelist_dir: ${general.esm_namelist_dir}/oifs/${version}/awicm3/v3.4
-            mip: "cmip7"
+            mip: "cmip6"
             wam: true
             add_add_namelist_changes:
                 fort.4:
@@ -124,7 +124,6 @@ oifs:
                         LECURR: true
 
 
-    cmip7_data_dir_nml: ${input_dir}/cmip7-data
     cmip6_data_dir_nml: ${input_dir}/cmip6-data
     cmip5_data_dir_nml: ${input_dir}/cmip5-data
 
@@ -202,7 +201,6 @@ oifs:
 
     choose_general.with_co2_tracer:
         true:
-            branch: 'lpj_guess_implementation+co2'
             namelist_changes:
                 fort.4:
                     NAMGFL:
@@ -234,7 +232,7 @@ oifs:
 
 
 fesom:
-    version: "2.7-main"
+    version: "2.6-main"
     time_step: 1800
     resolution: CORE2
     lresume: false
@@ -242,7 +240,6 @@ fesom:
     omp_num_threads: 1
     choose_general.with_co2_oce_coupling:
         true:
-            branch: fesom2.6_recom_awiesm3_co2_coupling
             recom_setting: 2p3z2d
             recom_comp_flag: -DRECOM_COUPLED=ON
             add_namelists:
@@ -255,7 +252,7 @@ fesom:
                 io:        "${namelist_dir}/namelist.io.recom.${recom_setting}"
             add_config_in_work:
                 recom:     "namelist.recom"
-            recom_input_path: '/work/ab0246/a270092/input/fesom2/recom/'
+            recom_input_path: '/work/ba1103/a270073/bc/recom/'
             add_add_namelist_changes:
                 namelist.recom:
                     nam_rsbc:
@@ -270,15 +267,19 @@ fesom:
             recom_comp_flag: ""
 
     build_type: Release #Available options: Debug Release RelWithDebInfo MinSizeRel
-    comp_command: mkdir -p build; cd build; cmake -DOIFS_COUPLED=ON -DFESOM_COUPLED=ON
-                 -DENABLE_OPENMP=ON -DOPENMP_REPRODUCIBLE=OFF -DDISABLE_MULTITHREADING=OFF -DDISABLE_PARALLEL_RESTART_READ=ON ${recom_comp_flag} -DCMAKE_BUILD_TYPE=${build_type} -DDISABLE_MULTITHREADING=OFF
-                ${yac_flag} -DCMAKE_INSTALL_PREFIX=../  ..;   make install
-                -j `nproc --all`
     choose_general.oasis_with_yac:
         true:
-            yac_flag: "-DOASIS_WITH_YAC=ON"
+            comp_command: mkdir -p build; cd build; cmake -DOIFS_COUPLED=ON -DFESOM_COUPLED=ON
+                -DENABLE_OPENMP=ON -DOPENMP_REPRODUCIBLE=OFF ${recom_comp_flag} -DCMAKE_BUILD_TYPE=${build_type} -DDISABLE_MULTITHREADING=OFF
+                -DOASIS_WITH_YAC=ON -DCMAKE_INSTALL_PREFIX=../  ..;   make install
+                -j `nproc --all`
         false:
-            yac_flag: ""
+            comp_command: mkdir -p build; cd build; cmake -DOIFS_COUPLED=ON -DFESOM_COUPLED=ON
+                -DENABLE_OPENMP=ON -DOPENMP_REPRODUCIBLE=OFF ${recom_comp_flag} -DCMAKE_BUILD_TYPE=${build_type} -DDISABLE_MULTITHREADING=OFF
+                -DVERBOSE=OFF -DCMAKE_INSTALL_PREFIX=../ ..;   make install -j `nproc
+                --all`
+        "*":
+            comp_command: "missing"
 
     missing_owy: "$(( 'oasis_with_yac' not in config['general'] ))" # TODO: move this to the block above when the missing option is included in choose_ blocks
     choose_missing_owy:
@@ -304,6 +305,8 @@ fesom:
     # Move in the future to fesom-2.0.yaml
     mesh_dir: "${pool_dir}/$(( '${resolution}'.lower() ))/"
 
+    surf_relax_s: "0.0"
+
     namelist_changes:
         namelist.config:
             restart_log:
@@ -312,14 +315,35 @@ fesom:
 
     choose_general.major_version:
         "v3.4":
-            version: "2.7"
+            version: "2.6-main"
             add_namelist_changes:
                 namelist.config:
+                    ale_def:
+                        which_ALE: 'zstar'
                     geometry:
                         metric_factor_zero: True
                 namelist.oce:
+                    oce_dyn:
+                        SPP: true
+                        k_gm_max: 3000
+                        k_gm_rampmax: 40.0
+                        k_gm_rampmin: 30
+                        scaling_ferreira: true
+                        scaling_fesom14: true
                     oce_tra:
-                        surf_relax_s: "0.0"
+                        surf_relax_s: "${surf_relax_s}"
+
+                namelist.tra:
+                    tracer_phys:
+                        surf_relax_s: "${surf_relax_s}"
+                        use_momix: false
+                        kv0_const: false
+                namelist.ice:
+                    ice_therm:
+                        albsn: 0.81
+                        albsnm: 0.77
+                        albi: 0.6
+                        albim: 0.43
 
 
         # Remove ICMCL_INIT forcing, which is only required for standalone simulations (form v3.2 onwards contains seasonal leaf area index, veg albedo etc.)
@@ -355,13 +379,11 @@ fesom:
 #       - fesom/fesom.io.yaml
 
 lpj_guess:
-    build_type: Release # Available options: Debug, Release
-    #comp_command: "mkdir -p build; cd build; cmake .. -DOASIS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_Fortran_FLAGS='-g -ggdb -fcheck=all -fbacktrace -fbounds-check -finit-real=snan -ffpe-trap=invalid,zero,overflow' -DCMAKE_C_FLAGS='-g -O0 -fsanitize=address'; make -j8; cd .."
-    comp_command: "mkdir -p build; cd build; cmake .. -DOASIS=ON -DCMAKE_BUILD_TYPE=${build_type}; make -j8; cd .."
+    #comp_command: "mkdir -p build; cd build; cmake .. -DOASIS=ON -DCMAKE_BUILD_TYPE=DEBUG; make -j8; cd .." #original comp_command.
+    comp_command: "mkdir -p build; cd build; cmake .. -DOASIS=ON -DCMAKE_BUILD_TYPE=RELEASE;
+        make -j8; cd .."                                                                                          #without debug.
+    #comp_command: "mkdir -p build; cd build; cmake .. -DOASIS=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_Fortran_FLAGS='-g -ggdb -fcheck=all -fbacktrace -fbounds-check -finit-real=snan -ffpe-trap=invalid,zero,overflow' -DCMAKE_C_FLAGS='-g -O0 -fsanitize=address'; make -j8; cd .." #debuging comp_command
     execution_command: ${executable} -parallel ${runscript_name}
-
-    # Automatically set mygrid to match OIFS resolution
-    mygrid: ${oifs.resolution}
 
     veg_atm_fields: [GUE_LLAI, GUE_HLAI, GUE_FRAL, GUE_FRAH, GUE_TYPH, GUE_TYPL, T2M_LPJG,
         TPRE_LPJ, SNOC_LPJ, SNOD_LPJ, ST1L_LPJ, ST2L_LPJ, ST3L_LPJ, ST4L_LPJ, SM1L_LPJ,
@@ -374,13 +396,6 @@ lpj_guess:
 
     resolution: ${oifs.resolution}
     grids:
-        ${resolution}-land:
-            name: ${resolution}-land
-            nx: "${nx}"
-            ny: "${ny}"
-            oasis_grid_type: "D"
-            oyac_grid_type: "LL"
-            oyac_io_per_node: 4
         lpjg:
             name: lpjg
             nx: "${nx}"
@@ -388,6 +403,7 @@ lpj_guess:
             oasis_grid_type: "D"
             oyac_grid_type: "LL"
             oyac_io_per_node: 4
+
         TL159-land:
             name: TL159-land
             nx: "${nx}"
@@ -404,13 +420,6 @@ lpj_guess:
             oyac_io_per_node: 4
         TCO95-land:
             name: TCO95-land
-            nx: "${nx}"
-            ny: "${ny}"
-            oasis_grid_type: "D"
-            oyac_grid_type: "LL"
-            oyac_io_per_node: 4
-        TCO319-land:
-            name: TCO319-land
             nx: "${nx}"
             ny: "${ny}"
             oasis_grid_type: "D"
@@ -437,20 +446,21 @@ lpj_guess:
     fixed_CO2: -1
     fixed_ndep: -1
     fixed_LU: -1
-    nyear_spinup: 1
-    freenyears: 0
-
 
 
     config_sources:
         tmp_yaml_file: ${namelist_dir}/lpjg_steps.yaml.j2
         ins_files: ${namelist_dir}/*.ins
+        ece_gridlist:
+            ${lpj_guess.input_dir}/gridlists/gridlist_${oifs.resolution}_${fesom.resolution}.txt                   #is this the correct file for ece_gridlist.txt?
         lpjg_cmip6_output_ins: ${namelist_dir}/lpjg_default_cmip6_output.ins
         "all_ins_[[proc_list-->PROC_NUM]]": ${namelist_dir}/*.ins
         "guess_ins_[[proc_list-->PROC_NUM]]": ${namelist_dir}/guess.ins.j2
-        "ecearth_ins_[[proc_list-->PROC_NUM]]": ${namelist_dir}/ecearth.ins.j2
+        "ecearth_ins_[[proc_list-->PROC_NUM]]": ${namelist_dir}/ecearth.ins
         "globsoil_ins_[[proc_list-->PROC_NUM]]": ${namelist_dir}/global_soiln.ins
         "lpjg_cmip6_output_ins_[[proc_list-->PROC_NUM]]": ${namelist_dir}/lpjg_default_cmip6_output.ins
+        "ece_gridlist_[[proc_list-->PROC_NUM]]":
+            ${lpj_guess.input_dir}/gridlists/gridlist_${oifs.resolution}_${fesom.resolution}.txt                                              #is this the correct file for ece_gridlist.txt?
         "tmp_yaml_file_[[proc_list-->PROC_NUM]]": ${namelist_dir}/lpjg_steps.yaml.j2
 
         temp_namcouple: /home/a/a270270/temp_confiles/namcouple
@@ -459,34 +469,33 @@ lpj_guess:
     config_in_work:
         tmp_yaml_file: lpjg_steps.yaml
         ins_files: /*.ins
+        ece_gridlist: ece_gridlist.txt         #is this the correct file?
         lpjg_cmip6_output_ins: lpjg_cmip6_output.ins
         "all_ins_[[proc_list-->PROC_NUM]]": runPROC_NUM/*.ins
         "guess_ins_[[proc_list-->PROC_NUM]]": runPROC_NUM/guess.ins
         "ecearth_ins_[[proc_list-->PROC_NUM]]": runPROC_NUM/ecearth.ins
         "globsoil_ins_[[proc_list-->PROC_NUM]]": runPROC_NUM/global_soiln.ins
         "lpjg_cmip6_output_ins_[[proc_list-->PROC_NUM]]": runPROC_NUM/lpjg_cmip6_output.ins
+        "ece_gridlist_[[proc_list-->PROC_NUM]]": runPROC_NUM/ece_gridlist.txt         #is this the correct file?
         "tmp_yaml_file_[[proc_list-->PROC_NUM]]": runPROC_NUM/lpjg_steps.yaml
 
         temp_namcouple: namcouple
         "mock_[[proc_list-->PROC_NUM]]": runPROC_NUM/output/stdo_stde.log
 
 
-    forcing_files:
-        soil_layer_type: soil_layer_type
-        CO2: CO2
-
     forcing_sources:
-        soil_layer_type: ${lpj_guess.slt_dir}/slt_${lpj_guess.resolution}_${fesom.resolution}.nc
-        CO2: ${lpj_guess.co2_source_file}
-        "soil_layer_type_[[proc_list-->PROC_NUM]]": ${lpj_guess.slt_dir}/slt_${lpj_guess.resolution}_${fesom.resolution}.nc
-        "CO2_[[proc_list-->PROC_NUM]]": ${lpj_guess.co2_source_file}
+        soil_layer_type: ${lpj_guess.input_dir}/slt/slt_${mygrid}.nc
+        CO2:
+            ${lpj_guess.input_dir}/cmip6_forcing/mole_fraction_of_carbon_dioxide_in_air_input4MIPs_lpjg.nc
+        "soil_layer_type_[[proc_list-->PROC_NUM]]": ${lpj_guess.input_dir}/slt/slt_${mygrid}.nc
+        "CO2_[[proc_list-->PROC_NUM]]":
+            ${lpj_guess.input_dir}/cmip6_forcing/mole_fraction_of_carbon_dioxide_in_air_input4MIPs_lpjg.nc
 
     forcing_in_work:
-        # Work directory files use old naming (slt_ATMO.nc) that LPJ-GUESS binary expects
         soil_layer_type: slt_${mygrid}.nc
-        CO2: ${lpj_guess.co2_work_file}
+        CO2: mole_fraction_of_carbon_dioxide_in_air_input4MIPs_lpjg.nc
         "soil_layer_type_[[proc_list-->PROC_NUM]]": runPROC_NUM/slt_${mygrid}.nc
-        "CO2_[[proc_list-->PROC_NUM]]": runPROC_NUM/${lpj_guess.co2_work_file}
+        "CO2_[[proc_list-->PROC_NUM]]": runPROC_NUM/mole_fraction_of_carbon_dioxide_in_air_input4MIPs_lpjg.nc
 
     # Create empty folders for landuse and fire in work
     create_folders:
@@ -504,11 +513,15 @@ lpj_guess:
             choose_general.with_co2_veg_coupling:
                 true:
                     add_input_sources:
-                        rst_co2_av: ${oasis3mct.input_dir}/rst_co2_av.nc
-                        "rst_co2_avInit_[[proc_list-->PROC_NUM]]": ${oasis3mct.input_dir}/rst_co2_av.nc
+                        co2_v2a: ${oasis3mct.input_dir}/co2_v2a.nc
+                        co2_a2v: ${oasis3mct.input_dir}/co2_a2v.nc
+                        "co2_v2aInit_[[proc_list-->PROC_NUM]]": ${oasis3mct.input_dir}/co2_v2a.nc
+                        "co2_a2vInit_[[proc_list-->PROC_NUM]]": ${oasis3mct.input_dir}/co2_a2v.nc
                     add_in_work:
-                        rst_co2_av: rst_co2_av.nc
-                        "rst_co2_avInit_[[proc_list-->PROC_NUM]]": runPROC_NUM/rst_co2_av.nc
+                        co2_v2a: co2_v2a.nc
+                        co2_a2v: co2_a2v.nc
+                        "co2_v2aInit_[[proc_list-->PROC_NUM]]": runPROC_NUM/co2_v2a.nc
+                        "co2_a2vInit_[[proc_list-->PROC_NUM]]": runPROC_NUM/co2_a2v.nc
 
     choose_general.with_co2_veg_coupling:
         true:
@@ -540,7 +553,6 @@ xios:
 rnfmap:
     pool_dir: ${general.pool_dir}
     runoff_maps_name: _${fesom.resolution}
-    version: v1.1
 
     nproc: 1
     omp_num_threads: ${computer.partitions.compute.cores_per_node}
@@ -646,31 +658,27 @@ oasis3mct:
             choose_general.with_co2_veg_coupling:
                 true:
                     add_coupling_target_fields:
-                        rst_co2_av.nc:
+                        co2_a2v.nc:
                             - 'CO2_LPJG <--loctrans_avg-- XCO2Veg'
+                        co2_v2a.nc:
                             - 'FCO2Land:FCO2Ant:FCO2Fire <--loctrans_avg-- GUE_CNAT:GUE_CANT:GUE_CFIR'
-                    add_merge_recv_restarts:
-                        - rst_co2_av.nc    # CO2 vegetation coupling (bidirectional LOCTRANS)
             choose_general.with_co2_oce_coupling:
                 true:
                     add_coupling_target_fields:
-                        rst_co2_ao.nc:
+                        co2_a2o.nc:
                             - 'XCO2_oce <--gauswgt_c-- A_XCO2_oce'
+                        co2_o2a.nc:
                             - 'A_FCO2_oce <--gauswgt_gss-- FCO2_feom'
-
-            # Specify which restart files need bidirectional merging
-            # Use this for restart files with LOCTRANS+EXPOUT in both directions
-            # where both send and receive use the same restart file name in namcouple
-            merge_recv_restarts:
-                - vegin.nc         # OpenIFS <-> lpjg bidirectional LOCTRANS
 
             mct_version: 5.0
             input_dir: ${oasis3mct.pool_dir}/cy${oifs.version}/${oifs.resolution}-${fesom.resolution}/
             rstos_file_name: 'rstos'
             rstas_file_name: 'rstas'
             vegin_file_name: 'vegin'
-            rst_co2_ao_name: 'rst_co2_ao'
-            rst_co2_av_name: 'rst_co2_av'
+            co2_a2v_name: 'co2_a2v'
+            co2_v2a_name: 'co2_v2a'
+            co2_a2o_name: 'co2_a2o'
+            co2_o2a_name: 'co2_o2a'
 
     land_atmo_coupling_time_step: 86400
     coupling_directions:
@@ -896,27 +904,37 @@ oasis3mct:
     choose_general.with_co2_veg_coupling:
         true:
             add_restart_in_files:
-                rst_co2_av.nc: rst_co2_av.nc
+                co2_a2v.nc: co2_a2v.nc
+                co2_v2a.nc: co2_v2a.nc
             add_restart_in_in_work:
-                rst_co2_av.nc: rst_co2_av.nc
+                co2_a2v.nc: co2_a2v.nc
+                co2_v2a.nc: co2_v2a.nc
             add_restart_out_files:
-                rst_co2_av.nc: rst_co2_av.nc
+                co2_a2v.nc: co2_a2v.nc
+                co2_v2a.nc: co2_v2a.nc
             add_restart_out_in_work:
-                rst_co2_av.nc: rst_co2_av.nc
+                co2_a2v.nc: co2_a2v.nc
+                co2_v2a.nc: co2_v2a.nc
             add_restart_out_sources:
-                rst_co2_av.nc: rst_co2_av.nc
+                co2_a2v.nc: co2_a2v.nc
+                co2_v2a.nc: co2_v2a.nc
     choose_general.with_co2_oce_coupling:
         true:
             add_restart_in_files:
-                rst_co2_ao.nc: rst_co2_ao.nc
+                co2_a2o.nc: co2_a2o.nc
+                co2_o2a.nc: co2_o2a.nc
             add_restart_in_in_work:
-                rst_co2_ao.nc: rst_co2_ao.nc
+                co2_a2o.nc: co2_a2o.nc
+                co2_o2a.nc: co2_o2a.nc
             add_restart_out_files:
-                rst_co2_ao.nc: rst_co2_ao.nc
+                co2_a2o.nc: co2_a2o.nc
+                co2_o2a.nc: co2_o2a.nc
             add_restart_out_in_work:
-                rst_co2_ao.nc: rst_co2_ao.nc
+                co2_a2o.nc: co2_a2o.nc
+                co2_o2a.nc: co2_o2a.nc
             add_restart_out_sources:
-                rst_co2_ao.nc: rst_co2_ao.nc
+                co2_a2o.nc: co2_a2o.nc
+                co2_o2a.nc: co2_o2a.nc
 
     remove_config_files:
         - cf
@@ -947,7 +965,8 @@ oasis3mct:
                     choose_general.with_co2_oce_coupling:
                         true:
                             add_restart_in_sources:
-                                rst_co2_ao.nc: ${input_dir}/${rst_co2_ao_name}.nc
+                                co2_a2o.nc: ${input_dir}/${co2_a2o_name}.nc
+                                co2_o2a.nc: ${input_dir}/${co2_o2a_name}.nc
 
 computer:
     # Activates the taskset approach for heterogeneous parallelization, by default
@@ -964,7 +983,7 @@ computer:
                     iolibraries: system_libs
                     compiler_mpi: gnu2023_ompi2023
                 levante:
-                    iolibraries: system_intel_libs
-                    compiler_mpi: intel2022_openmpi
+                    iolibraries: system_gnu_libs
+                    compiler_mpi: gnu11_ompi4
         '*':
             foo: bar

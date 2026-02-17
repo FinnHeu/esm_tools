@@ -1,4 +1,5 @@
 &NAMRNFMAP
     RunLengthSec = 86400
     TimeStepSec  = 10800
+    CalvingEnthalpy = .true.
 /

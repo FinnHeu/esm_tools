@@ -1,0 +1,39 @@
+general:
+        user: !ENV ${USER}
+        account: "ab0995"
+        setup_name: fesom
+        compute_time: "00:02:00"
+        initial_date: '1958-01-01'
+        final_date: '1958-01-02'
+        base_dir: "/work/ab0246/${user}/runtime/${general.setup_name}-${general.version}/"
+        nyear: 0
+        nmonth: 0
+        nday: 1
+        use_venv: False
+
+fesom:
+        version: 2.6
+        model_dir: "/work/ab0995/a270186/esm_tools/model_codes/fesom-2.6/"
+        #pool_dir: "/work/ab0246/a270092/input/"
+        mesh_dir: "/work/ab0995/a270186/model_inputs/fesom2/mesh/CORE2ice/"
+        restart_rate: 20
+        restart_first: 20
+        restart_unit: 'y'
+        resolution: "CORE2ice"
+        lresume: true
+        ini_parent_exp_id: "SPIN"
+        ini_parent_dir: "/work/bb1469/a270092/runtime/awicm3-v3.3.0/${ini_parent_exp_id}/"
+        ini_parent_date: "${prev_date}"
+        choose_general.run_number:
+                1:
+                lasttime: 84600
+                restart_in_sources:
+                        par_oce_restart: "/work/ab0995/a270186/esm_tools/runtime/awicm3-v3.3.0/preproduction/restarts_CORE2_to_CORE2ice/SPIN/fesom.1849.oce.restart/*.nc"
+                        par_ice_restart: "/work/ab0995/a270186/esm_tools/runtime/awicm3-v3.3.0/preproduction/restarts_CORE2_to_CORE2ice/SPIN/fesom.1849.ice.restart/*.nc"
+        add_namelist_changes:
+                namelist.config:
+                run_config:
+                        use_cavity: true
+
+                time_step: 1800
+                nproc: 128

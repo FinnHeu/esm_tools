@@ -8,10 +8,7 @@
 
 lpj_guess:
     model: lpj_guess
-    version: 4.1.2
-
-    further_reading:
-        - lpj_guess/lpj_guess.cmip.yaml
+    version: 4.1.1
 
     metadata:
         Institute: Lund Universitiy
@@ -31,20 +28,13 @@ lpj_guess:
     #comp_command: "mkdir -p ${model_dir}/build; cd ${model_dir}/build; cmake ..; make -j8"
     comp_command: "mkdir -p build; cd build; cmake ..; make -j8"
 
-    setup_dir: "${model_dir}"
-    bin_dir: "${setup_dir}/bin"
     install_bins: "build/guess"
     clean_command: "rm -rf build"
-    executable: guess_TL255
+    executable: guess
     execution_command: ${executable} ${runscript_name}
     #resolution: TL159 #if it's not set i dosen't work!
     resolution: TL255 #if it's not set i dosen't work!
     TM5: 0
-
-    # Enumeration for parallel run directories (run1, run2, ..., runN)
-    nproc: 8
-    proc_list_entry: '[str(x) for x in range(1,${nproc}+1)]'
-    proc_list: $(( ${proc_list_entry} ))
 
     choose_version:
         4.1.1:
@@ -55,6 +45,8 @@ lpj_guess:
             runscript_name: run_coupled_4_1_2.ins
             git-repository: https://git.smhi.se/e8891/lpjg-4.1.git
             branch: lpj_guess_awiesm3
+            mygrid: TL255
+            maxgrid: 25215
             install_bins: build/guess
             executable: guess
 
@@ -70,7 +62,6 @@ lpj_guess:
     # Some recommended defaults (restart for old experiment yes or no?)
     lresume: false
     time_step: 86400
-    nyear_spinup: 10
 
     choose_lresume:
         false:
@@ -80,38 +71,6 @@ lpj_guess:
 
     # Some commonly used variables in other ESM-Tools components (but optional)
     input_dir: ${pool_dir}/lpj-guess/
-    out_date_folder: "${end_date!syear!smonth!sday}"
-
-    # CMIP N deposition directory (empty string to disable, otherwise full path with trailing /)
-    ndep_input_dir: ${input_dir}/ndep/${resolution}/
-
-    # Define files to ignore
-    ignore_files:
-        outputs: outputs
-        log: log
-    ignore_in_work:
-        # Ignore output files with the same name
-        outputs: "output/*.out"
-        # Ignore log files
-        log: "*.log"
-        # Ignore input directories (created during setup)
-        ndep_dir: "ndep"
-        landuse_dir: "landuse"
-    ignore_sources:
-        outputs: "output/*.out"
-        log: "*.log"
-
-    # Output data - enumerate over all run directories to preserve structure
-    # Uses proc_list enumeration (defined above via nproc)
-    outdata_files:
-        "lpjg_run_[[proc_list-->PROC_NUM]]": "lpjg_run_PROC_NUM"
-
-    outdata_in_work:
-        "lpjg_run_[[proc_list-->PROC_NUM]]": "runPROC_NUM/output/*.out"
-
-    outdata_sources:
-        "lpjg_run_[[proc_list-->PROC_NUM]]": "runPROC_NUM/*"
-
     namelist_dir: ${general.esm_namelist_dir}/lpj_guess/
     gridlist_dir: ${input_dir}/gridlists/
     forcing_dir: ${input_dir}/climate_forcing_data/
@@ -147,73 +106,6 @@ lpj_guess:
         state: lpjg_state_${lpjg_end_state}/*
     restart_out_sources:
         state: lpjg_state_${lpjg_end_state}/*
-
-    # Soil type file
-    slt_dir: ${input_dir}/slt/
-
-    # LUH3 land use input directory (NetCDF files regridded to various resolutions)
-    
-    #luh3_input_dir: ${input_dir}/land_use/regridded/ #put back aftet the fix !!! LASZLO
-    
-    luh3_input_dir: /work/ab0995/a270270/land_use/regridded_proper/ #Temp for testing LASZLO
-
-
-
-    # LUH3 input control - set automatically by choose_mip in lpj_guess.cmip.yaml
-    # (cmip6 -> use_luh3_input=0 for LUH2 text files, cmip7 -> use_luh3_input=1 for LUH3 NetCDF)
-    # Can still be overridden in runscript if needed
-
-    # N deposition forcing files - link from input to work/ndep with renamed filenames
-    forcing_files:
-        soil_layer_type: soil_layer_type
-        drynhx: drynhx
-        drynoy: drynoy
-        wetnhx: wetnhx
-        wetnoy: wetnoy
-        peat: peat
-    forcing_sources:
-        soil_layer_type: ${slt_dir}/slt_${resolution}.nc
-        drynhx: ${ndep_input_dir}/drynhx_${resolution}_hist_d1.nc
-        drynoy: ${ndep_input_dir}/drynoy_${resolution}_hist_d1.nc
-        wetnhx: ${ndep_input_dir}/wetnhx_${resolution}_hist_d1.nc
-        wetnoy: ${ndep_input_dir}/wetnoy_${resolution}_hist_d1.nc
-        peat: ${input_dir}/peat/${resolution}_peat_frac.txt
-        "soil_layer_type_[[proc_list-->PROC_NUM]]": ${slt_dir}/slt_${resolution}.nc
-        "drynhx_[[proc_list-->PROC_NUM]]": ${ndep_input_dir}/drynhx_${resolution}_hist_d1.nc
-        "drynoy_[[proc_list-->PROC_NUM]]": ${ndep_input_dir}/drynoy_${resolution}_hist_d1.nc
-        "wetnhx_[[proc_list-->PROC_NUM]]": ${ndep_input_dir}/wetnhx_${resolution}_hist_d1.nc
-        "wetnoy_[[proc_list-->PROC_NUM]]": ${ndep_input_dir}/wetnoy_${resolution}_hist_d1.nc
-    forcing_in_work:
-        soil_layer_type: slt_${resolution}.nc
-        drynhx: ndep/drynhx2.nc
-        drynoy: ndep/drynoy2.nc
-        wetnhx: ndep/wetnhx2.nc
-        wetnoy: ndep/wetnoy2.nc
-        peat: landuse/peat_frac.txt
-        "soil_layer_type_[[proc_list-->PROC_NUM]]": runPROC_NUM/slt_${resolution}.nc
-        "drynhx_[[proc_list-->PROC_NUM]]": runPROC_NUM/ndep/drynhx2.nc
-        "drynoy_[[proc_list-->PROC_NUM]]": runPROC_NUM/ndep/drynoy2.nc
-        "wetnhx_[[proc_list-->PROC_NUM]]": runPROC_NUM/ndep/wetnhx2.nc
-        "wetnoy_[[proc_list-->PROC_NUM]]": runPROC_NUM/ndep/wetnoy2.nc
-
-    # LUH3 land use files - conditionally added when use_luh3_input=1
-    choose_use_luh3_input:
-        1:
-            add_forcing_files:
-                luh3_states: luh3_states
-                luh3_transitions: luh3_transitions
-                luh3_management: luh3_management
-                luh3_static: luh3_static
-            add_forcing_sources:
-                luh3_states: ${luh3_input_dir}/multiple-states_input4MIPs_landState_CMIP_UofMD-landState-3-1-1_gn_0850-2024_${resolution}.nc
-                luh3_transitions: ${luh3_input_dir}/multiple-transitions_input4MIPs_landState_CMIP_UofMD-landState-3-1-1_gn_0850-2023_${resolution}.nc
-                luh3_management: ${luh3_input_dir}/multiple-management_input4MIPs_landState_CMIP_UofMD-landState-3-1-1_gn_0850-2024_${resolution}.nc
-                luh3_static: ${luh3_input_dir}/multiple-static_input4MIPs_landState_CMIP_UofMD-landState-3-1-1_gn_${resolution}.nc
-            add_forcing_in_work:
-                luh3_states: landuse/luh3_states.nc
-                luh3_transitions: landuse/luh3_transitions.nc
-                luh3_management: landuse/luh3_management.nc
-                luh3_static: landuse/luh3_static.nc
 
     choose_resolution:
         # Note:
@@ -307,6 +199,8 @@ lpj_guess:
 computer:
     add_export_vars:
         myfortrancompiler: $FC
+        #mygrid: TL159
+        mygrid: TL255
         OASIS_ANCHOR: ../../../oasis
         NETCDF_C_DIR: $NETCDFROOT
         NETCDF_F_DIR: $NETCDFFROOT

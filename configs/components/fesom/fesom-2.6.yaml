@@ -128,6 +128,12 @@ fesom:
                     whichEVP: 0
                     alpha_evp: 250          # constant that control numerical stability of mEVP.
                     beta_evp: 250           # constant that control numerical stability of mEVP.
+            CORE2ice:
+                    nx: 132273
+                    nproc: 288
+                    whichEVP: 0
+                    alpha_evp: 250          # constant that control numerical stability of mEVP.
+                    beta_evp: 250           # constant that control numerical stability of mEVP.
             CORE3:
                     nx: 211567
                     mesh_dir: "${fesom.mesh_base_dir}/core3/"
