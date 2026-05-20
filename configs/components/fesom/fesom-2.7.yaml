@@ -177,6 +177,11 @@ fesom:
                     whichEVP: 1
                     alpha_evp: 500          # constant that control numerical stability of mEVP.
                     beta_evp: 500           # constant that control numerical stability of mEVP.
+            DARS2cav:
+                    nx: 3222974
+                    whichEVP: 1
+                    alpha_evp: 500          # constant that control numerical stability of mEVP.
+                    beta_evp: 500           # constant that control numerical stability of mEVP.
             ROS2:
                     nx: 26306560
                     whichEVP: 1
@@ -208,6 +213,7 @@ fesom:
             par_oce_restart: par_oce_restart
             par_ice_restart: par_ice_restart
 
+
     restart_in_in_work:
             par_oce_restart: fesom.${parent_date!syear}.oce.restart/*.nc
             par_ice_restart: fesom.${parent_date!syear}.ice.restart/*.nc
@@ -218,6 +224,7 @@ fesom:
             wiso_restart: fesom.${parent_date!syear}.wiso.restart.nc
             icb_restart: iceberg.restart #.${parent_date!syear!month}
             icb_restart_ISM: iceberg.restart.ISM
+            
     restart_in_sources:
             par_oce_restart: fesom.${parent_date!syear}.oce.restart/*.nc
             par_ice_restart: fesom.${parent_date!syear}.ice.restart/*.nc
@@ -236,6 +243,7 @@ fesom:
             fesom_raw_restart: fesom_raw_restart
             fesom_bin_restart_info: fesom_bin_restart_info
             fesom_bin_restart: fesom_bin_restart
+            
 
     restart_out_in_work:
             par_oce_restart: fesom.${end_date!syear}.oce.restart/*.nc
@@ -249,6 +257,7 @@ fesom:
             wiso_restart: fesom.${end_date!syear}.wiso.restart.nc
             icb_restart: iceberg.restart #.${parent_date!syear}
             icb_restart_ISM: iceberg.restart.ISM
+            
     restart_out_sources:
             par_oce_restart: fesom.${end_date!syear}.oce.restart/*.nc
             par_ice_restart: fesom.${end_date!syear}.ice.restart/*.nc
@@ -270,7 +279,7 @@ fesom:
     choose_with_icb:
             True:
                 required_plugins:
-                    - "git+https://github.com/esm-tools-plugins/fesom_icb_pism"
+                    - "git+https://github.com/FinnHeu/AWI-ESM-v3.4.1-CAV-ICB"
 
                 prepcompute_recipe:
                 - "compile_model"
@@ -281,13 +290,13 @@ fesom:
                 - "assemble"
                 - "log_used_files"
                 - "wait_for_iterative_coupling"
-                - "prep_icebergs"                       # Plugin
                 - "copy_files_to_thisrun"
                 - "modify_namelists"
-                - "apply_iceberg_calving_to_namelists"  # Plugin
                 - "modify_files"
                 - "copy_files_to_work"
                 - "report_missing_files"
+                - "prep_icebergs"                       # Plugin
+                - "apply_iceberg_calving_to_namelists"  # Plugin
                 - "compute_and_log_file_checksums"
                 - "_write_finalized_config"
                 - "database_entry"
@@ -301,11 +310,31 @@ fesom:
                 add_restart_in_files:
                         icb_restart: icb_restart
                         icb_restart_ISM: icb_restart_ISM
+                        fw_icb: fw_icb
+                        calving_icb: calving_icb
+                
+                add_restart_in_in_work:
+                        fw_icb: fw_4_icb.nc
+                        calving_icb: calving_4_icb.nc
+
+                add_restart_in_sources:
+                        fw_icb: fw.fesom.${parent_date!syear}.nc
+                        calving_icb: calving_AA.fesom.${parent_date!syear}.nc
 
                 add_restart_out_files:
                         icb_restart: icb_restart
                         icb_restart_ISM: icb_restart_ISM
+                        fw_icb: fw_icb
+                        calving_icb: calving_icb
+                
+                add_restart_out_in_work:
+                        fw_icb: fw.fesom.${end_date!syear}.nc
+                        calving_icb: calving_AA.fesom.${end_date!syear}.nc
 
+                add_restart_out_sources:
+                        fw_icb: fw.fesom.${end_date!syear}.nc
+                        calving_icb: calving_AA.fesom.${end_date!syear}.nc
+                
                 add_outdata_targets:
                         buoys_track: "buoys_track.nc_${run_datestamp}"
 
@@ -789,4 +818,6 @@ fesom:
     - "copy_stuff_back_from_work"
     - "copy_all_results_to_exp"
     - "clean_run_dir"
+
+
 
