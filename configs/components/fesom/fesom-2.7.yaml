@@ -278,8 +278,8 @@ fesom:
 
     choose_with_icb:
             True:
-                required_plugins:
-                    - "git+https://github.com/FinnHeu/AWI-ESM-v3.4.1-CAV-ICB"
+                #required_plugins:
+                #    - "git+https://github.com/FinnHeu/AWI-ESM-v3.4.1-CAV-ICB"
 
                 prepcompute_recipe:
                 - "compile_model"
@@ -310,30 +310,10 @@ fesom:
                 add_restart_in_files:
                         icb_restart: icb_restart
                         icb_restart_ISM: icb_restart_ISM
-                        fw_icb: fw_icb
-                        calving_icb: calving_icb
-                
-                add_restart_in_in_work:
-                        fw_icb: fw_4_icb.nc
-                        calving_icb: calving_4_icb.nc
-
-                add_restart_in_sources:
-                        fw_icb: fw.fesom.${parent_date!syear}.nc
-                        calving_icb: calving_AA.fesom.${parent_date!syear}.nc
 
                 add_restart_out_files:
                         icb_restart: icb_restart
                         icb_restart_ISM: icb_restart_ISM
-                        fw_icb: fw_icb
-                        calving_icb: calving_icb
-                
-                add_restart_out_in_work:
-                        fw_icb: fw.fesom.${end_date!syear}.nc
-                        calving_icb: calving_AA.fesom.${end_date!syear}.nc
-
-                add_restart_out_sources:
-                        fw_icb: fw.fesom.${end_date!syear}.nc
-                        calving_icb: calving_AA.fesom.${end_date!syear}.nc
                 
                 add_outdata_targets:
                         buoys_track: "buoys_track.nc_${run_datestamp}"
@@ -359,8 +339,8 @@ fesom:
                                         "*":
                                                 iceberg_dir: "${general.experiment_couple_dir}"
 
-                                add_input_files:
-                                        num_non_melted_icb_file: "num_non_melted_icb_file"
+                                #add_input_files:
+                                #        num_non_melted_icb_file: "num_non_melted_icb_file"
 
                         "*":
                                 iceberg_dir: "${ini_iceberg_dir}"
@@ -369,12 +349,12 @@ fesom:
                         true:
                                 add_input_sources:
                                         "[[icb_inputs-->ICB_INPUT]]": ${iceberg_dir}/icb_ICB_INPUT.dat
-                                        num_non_melted_icb_file: "${iceberg_dir}/num_non_melted_icb_file"
+                                        #num_non_melted_icb_file: "${iceberg_dir}/num_non_melted_icb_file"
 
                         false:
                                 add_input_sources:
                                         "[[icb_inputs-->ICB_INPUT]]": ${iceberg_dir}/icb_ICB_INPUT.dat_@YEAR@0101-@YEAR@1231
-                                        num_non_melted_icb_file: "${iceberg_dir}/num_non_melted_icb_file_@YEAR@0101-@YEAR@1231"
+                                        #num_non_melted_icb_file: "${iceberg_dir}/num_non_melted_icb_file_@YEAR@0101-@YEAR@1231"
 
                 add_input_in_work:
                         latitude: "icb_latitude.dat"
@@ -383,7 +363,7 @@ fesom:
                         height: "icb_height.dat"
                         scaling: "icb_scaling.dat"
                         felem: "icb_felem.dat"
-                        num_non_melted_icb_file: "num_non_melted_icb_file"
+                        #num_non_melted_icb_file: "num_non_melted_icb_file"
 
                 add_input_files:
                         latitude: "latitude"
