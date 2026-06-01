@@ -1642,6 +1642,13 @@ oifs:
        # - "add_vcs_info"
        #- "check_vcs_info_against_last_run"
        - "database_entry"
+
+    # Conditionally add iceberg plugin steps when with_icb is enabled
+    choose_fesom.with_icb:
+        True:
+            add_prepcompute_recipe:
+                - "prep_icebergs"                       # Plugin
+                - "apply_iceberg_calving_to_namelists"  # Plugin
     # this does not work as expected, solution is work in progress
     #   - "postprocess"
 
