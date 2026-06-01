@@ -1,0 +1,136 @@
+general:
+    user: !ENV ${USER}
+    setup_name: "awiesm3"
+    version: "v3.4.1-CAV-ICB"
+    account: "ba1550"
+    compute_time: "06:00:00"
+    initial_date: "1600-01-01"
+    final_date: "1608-01-01"
+    base_dir: "/work/ba1550/a270186/simulations/${general.setup_name}-${general.version}/preproduction/" 
+    nday: 0
+    nmonth: 0
+    nyear: 1
+    use_venv: False
+    pool_dir: "/work/ab0246/a270092/input/" #"/work/pd1284/AWIESM/"
+    force_overwrite_in_file_movements: True
+    # install_esm_tools_branch: 'branch_for_CMIP7_HR_spinup_tag'
+
+computer:
+    taskset: true
+    mail_type: "ALL"
+    mail_user: "finn.heukamp@awi.de"
+
+awiesm3:
+    postprocessing: false
+    model_dir: "/work/ab0995/${user}/esm_tools/model_codes/awiesm3-v3.4.1/CAV-ICB/awiesm3-v3.4.1/"
+
+fesom:
+    resolution: "DARS2cav"
+    mesh_dir: "/work/ab0995/a270186/model_inputs/fesom2/mesh/DARS2cav/"
+    namelist_dir: "${general.esm_namelist_dir}/fesom2/CMIP7_HR"
+    time_step: 360
+    nproc: 5120
+    omp_num_threads: 2
+    lresume: true
+    restart_rate: 1
+    restart_unit: 'y'
+    restart_first: 1
+    ini_parent_exp_id: "foo"
+    ini_parent_date: "${prev_date}"
+    ini_restart_dir: "/work/ba1550/a270186/simulations/awiesm3-v3.4.1/preproduction/restarts/DARS2_to_DARS2cav/CAV/"
+    choose_general.run_number:
+        1:
+            restart_in_sources:
+                par_oce_restart: /${ini_restart_dir}/fesom.1599.oce.restart/*.nc
+                par_ice_restart: /${ini_restart_dir}/fesom.1599.ice.restart/*.nc
+    
+    # Icebergs
+    with_icb: true
+    ini_iceberg_dir: "/home/a/a270186/esm_tools/plugins/AWI-ESM-v3.4.x-CAV-ICB/test/output/"
+    basin_file: "/home/a/a270186/esm_tools/plugins/basins/basins_antarctica.nc"
+    use_cav: true
+    scaling_factor: [100, 50, 25, 1, 1, 1]
+    ibareamax: 100
+
+    add_namelist_changes:
+        namelist.dyn:
+            dynamics_general:
+                ab_order: 3
+        namelist.config:
+            paths:
+                meshpath: "/work/ab0995/a270186/model_inputs/fesom2/mesh/DARS2cav/"
+            run_config:
+                use_cavity: .true.
+            icebergs:
+                #ib_num: 452
+                steps_per_ib_step: 8
+                cell_saturation: 4
+        
+
+lpj_guess:
+    resolution: "TCO319"
+    mip: cmip7
+    scenario: piControl
+    daily_output: False
+    nproc: 64
+    omp_num_threads: 8
+    lresume: false
+    ini_parent_exp_id: "foo"
+    ini_parent_date: "${prev_date}"
+    ini_restart_dir: "/work/bb1469/a270089/runtime/awiesm3-v3.4.1/AWI-ESM3-VEG-HR-CMIP7-Spinup_cont2/restart/lpj_guess/"
+    choose_general.run_number:
+        1:
+            restart_in_sources:
+                state: /${ini_restart_dir}/lpjg_state_1490/*
+    fixed_CO2: 1850
+    fixed_ndep: 1850
+    fixed_LU: 1850
+    slt_dir: "/work/ba1550/a270301/model_inputs/DARS2cav/lpj-guess/"
+
+oifs:
+    resolution: "TCO319"
+    levels: "L137"
+    prepifs_expid: abns
+    input_expid: awi3
+    wam: true
+    time_step: 1200
+    nproc: 640
+    omp_num_threads: 4
+    mip: "cmip7"
+    scenario: "piControl"
+    
+    lresume: false
+    ini_parent_exp_id: "AWI-ESM3-VEG-HR-CMIP7-Spinup_cont2"
+    ini_restart_dir: "/work/bb1469/a270089/runtime/awiesm3-v3.4.1/AWI-ESM3-VEG-HR-CMIP7-Spinup_cont2/restart/oifs/"
+    ini_restart_date: "1599-12-31T23:40:00"
+    ini_pseudo_initial_date: "1598-01-01"
+    prev_run_config_file: "/work/bb1469/a270089/runtime/awiesm3-v3.4.1/AWI-ESM3-VEG-HR-CMIP7-Spinup_cont2/config/AWI-ESM3-VEG-HR-CMIP7-Spinup_cont2_finished_config.yaml_15980101-15991231"
+
+    cmip7_cmor_output: "cmip7_spinup"
+    add_namelist_changes:
+        fort.4:
+            NAMCLDP:
+                RVICE: 0.16
+            NAEPHY:
+                #LRDALB: true            # Turn albedo coupling OFF
+                LRDALB: false          # Turn albedo coupling OFF (ON?)
+    add_input_files:
+        dust_clim: dust_clim
+    add_input_sources:
+        dust_clim: '/work/ab0246/a270092/input/oifs-48r1/cmip7-data/dust/onlinedust_v4_rmp.nc'
+    add_input_in_work:
+        dust_clim: 'composition/onlinedust_v4_rmp.nc'
+
+    
+oasis3mct:
+    use_lucia: false
+    lresume: true
+    time_step: 3600
+
+xios:
+    with_model: oifs
+    nproc: 4
+    omp_num_threads: 32
+
+rnfmap:
+    input_dir: "/work/ba1550/a270301/model_inputs/DARS2cav/runoff_map_modified/"
