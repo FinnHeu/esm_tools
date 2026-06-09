@@ -350,8 +350,8 @@ fesom:
             recom_comp_flag: ""
 
     build_type: Release #Available options: Debug Release RelWithDebInfo MinSizeRel
-    with_xios: true
-    choose_with_xios:
+    with_xios: false
+    choose_fesom.with_xios:
         true:
             comp_command: export XIOS_ROOT=${model_dir}/../xios; mkdir -p build; cd build; cmake -DOIFS_COUPLED=ON -DFESOM_COUPLED=ON
                          -DENABLE_OPENMP=ON -DOPENMP_REPRODUCIBLE=OFF -DDISABLE_MULTITHREADING=OFF -DDISABLE_PARALLEL_RESTART_READ=ON ${recom_comp_flag} -DFESOM_WITH_XIOS=ON -DCMAKE_BUILD_TYPE=${build_type} -DDISABLE_MULTITHREADING=OFF
@@ -404,7 +404,7 @@ fesom:
 
     choose_general.major_version:
         "v3.4":
-            with_xios: true
+            with_xios: false
             add_namelist_changes:
                 namelist.config:
                     geometry:
