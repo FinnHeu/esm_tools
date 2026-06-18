@@ -50,6 +50,13 @@
     <field id="unod_sfc"         long_name="zonal surface velocity at nodes"          standard_name="sea_water_x_velocity_at_sea_surface"      unit="m s-1"/>
     <field id="vnod_sfc"         long_name="meridional surface velocity at nodes"     standard_name="sea_water_y_velocity_at_sea_surface"      unit="m s-1"/>
     <field id="strength_ice"     long_name="ice strength"                             unit="N m-1" detect_missing_value="true"/>
+    <field id="calving_AA"       long_name="Antarctic calving flux"                   unit="m s-1"/>
+    <field id="runoff_solid"     long_name="solid runoff from snow"                   unit="m s-1"/>
+    <field id="runoff_liquid"    long_name="liquid runoff from rain"                  unit="m s-1"/>
+    <field id="ibfwb"            long_name="basal iceberg melting"                    unit="m s-1"/>
+    <field id="ibfwbv"           long_name="basal iceberg melting"                    unit="m s-1"/>
+    <field id="ibfwl"            long_name="lateral iceberg melting"                  unit="m s-1"/>
+    <field id="ibfwe"            long_name="iceberg erosion"                          unit="m s-1"/>
   </field_group>
 
   <!-- 2D fields on ELEMENTS -->
@@ -65,6 +72,8 @@
   <field_group id="fesom_3d_nod" grid_ref="grid_3d_nod" prec="4">
     <field id="temp"       long_name="sea water potential temperature" unit="degC"/>
     <field id="salt"       long_name="sea water salinity"              unit="1e-3" prec="8"/>
+    <field id="dens_sigma0"     long_name="sea water potential density anomaly with respect to srf."     unit="kg m-3"/>
+    <field id="dens_insitu"     long_name="sea water in-situ density anomaly"     unit="kg m-3"/>
     <field id="unod"       long_name="zonal velocity at nodes"         unit="m s-1"/>
     <field id="vnod"       long_name="meridional velocity at nodes"    unit="m s-1"/>
     <field id="hnode"      long_name="vertex layer thickness"          unit="m"/>
@@ -77,6 +86,7 @@
     <field id="bolus_w" long_name="GM bolus vertical velocity"       unit="m s-1"/>
     <field id="N2"      long_name="Brunt-Vaisala frequency squared"  unit="s-2"/>
     <field id="Kv"      long_name="vertical tracer diffusivity"      unit="m2 s-1"/>
+    <field id="ibhf"    long_name="heat flux from iceberg melting"   unit="W m-2"/>
   </field_group>
 
   <!-- 3D fields on ELEMENTS, cell-center -->

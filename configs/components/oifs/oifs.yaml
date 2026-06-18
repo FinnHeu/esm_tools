@@ -1649,6 +1649,6 @@ oifs:
             add_prepcompute_recipe:
                 - "prep_icebergs"                       # Plugin
                 - "apply_iceberg_calving_to_namelists"  # Plugin
-    # this does not work as expected, solution is work in progress
-    #   - "postprocess"
+                #- "preserve_iceberg_restart"            # Plugin
+    
 

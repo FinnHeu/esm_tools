@@ -114,6 +114,13 @@ fesom:
                     whichEVP: 0
                     alpha_evp: 250          # constant that control numerical stability of mEVP.
                     beta_evp: 250           # constant that control numerical stability of mEVP.
+            CORE2ice:
+                    nx: 132273
+                    mesh_dir: "${fesom.mesh_base_dir}/CORE2ice/"
+                    nproc: 288
+                    whichEVP: 0
+                    alpha_evp: 250          # constant that control numerical stability of mEVP.
+                    beta_evp: 250           # constant that control numerical stability of mEVP.
             CORE3:
                     nx: 211567
                     mesh_dir: "${fesom.mesh_base_dir}/core3/"
@@ -222,7 +229,7 @@ fesom:
             fesom_bin_restart_info: fesom_bin_restart/*.info
             fesom_bin_restart: fesom_bin_restart/np${nproc}/*
             wiso_restart: fesom.${parent_date!syear}.wiso.restart.nc
-            icb_restart: iceberg.restart #.${parent_date!syear!month}
+            #icb_restart: iceberg.restart #.${parent_date!syear!month}
             icb_restart_ISM: iceberg.restart.ISM
             
     restart_in_sources:
@@ -233,7 +240,7 @@ fesom:
             fesom_bin_restart_info: fesom_bin_restart/*.info
             fesom_bin_restart: fesom_bin_restart/np${nproc}/*
             wiso_restart: fesom.${parent_date!syear}.wiso.restart.nc
-            icb_restart: iceberg.restart #.${parent_date!syear!month}
+            #icb_restart: iceberg.restart #.${parent_date!syear!month}
             icb_restart_ISM: iceberg.restart.ISM
 
     restart_out_files:
@@ -255,7 +262,7 @@ fesom:
             fesom_bin_restart: fesom_bin_restart/np${nproc}/*
             fesom_bin_restart_tar: fesom_bin_restart.tar.*
             wiso_restart: fesom.${end_date!syear}.wiso.restart.nc
-            icb_restart: iceberg.restart #.${parent_date!syear}
+            #icb_restart: iceberg.restart #.${parent_date!syear}
             icb_restart_ISM: iceberg.restart.ISM
             
     restart_out_sources:
@@ -268,7 +275,7 @@ fesom:
             fesom_bin_restart: fesom_bin_restart/np${nproc}/*
             fesom_bin_restart_tar: fesom_bin_restart.tar.*
             wiso_restart: fesom.${end_date!syear}.wiso.restart.nc
-            icb_restart: iceberg.restart #.${parent_date!syear}
+            #icb_restart: iceberg.restart #.${parent_date!syear}
             icb_restart_ISM: iceberg.restart.ISM
 
     outdata_sources:
@@ -308,11 +315,11 @@ fesom:
                 icb_inputs: [longitude,latitude,length,height,scaling,felem]
 
                 add_restart_in_files:
-                        icb_restart: icb_restart
+                        #icb_restart: icb_restart
                         icb_restart_ISM: icb_restart_ISM
 
                 add_restart_out_files:
-                        icb_restart: icb_restart
+                        #icb_restart: icb_restart
                         icb_restart_ISM: icb_restart_ISM
                 
                 add_outdata_targets:
@@ -345,33 +352,33 @@ fesom:
                         "*":
                                 iceberg_dir: "${ini_iceberg_dir}"
 
-                choose_update_icebergs:
-                        true:
-                                add_input_sources:
-                                        "[[icb_inputs-->ICB_INPUT]]": ${iceberg_dir}/icb_ICB_INPUT.dat
-                                        #num_non_melted_icb_file: "${iceberg_dir}/num_non_melted_icb_file"
+                #choose_update_icebergs:
+                #        true:
+                #                add_input_sources:
+                #                        "[[icb_inputs-->ICB_INPUT]]": ${iceberg_dir}/icb_ICB_INPUT.dat
+                #                        #num_non_melted_icb_file: "${iceberg_dir}/num_non_melted_icb_file"
 
-                        false:
-                                add_input_sources:
-                                        "[[icb_inputs-->ICB_INPUT]]": ${iceberg_dir}/icb_ICB_INPUT.dat_@YEAR@0101-@YEAR@1231
-                                        #num_non_melted_icb_file: "${iceberg_dir}/num_non_melted_icb_file_@YEAR@0101-@YEAR@1231"
+                #        false:
+                #                add_input_sources:
+                #                        "[[icb_inputs-->ICB_INPUT]]": ${iceberg_dir}/icb_ICB_INPUT.dat_@YEAR@0101-@YEAR@1231
+                #                        #num_non_melted_icb_file: "${iceberg_dir}/num_non_melted_icb_file_@YEAR@0101-@YEAR@1231"
 
-                add_input_in_work:
-                        latitude: "icb_latitude.dat"
-                        longitude: "icb_longitude.dat"
-                        length: "icb_length.dat"
-                        height: "icb_height.dat"
-                        scaling: "icb_scaling.dat"
-                        felem: "icb_felem.dat"
+                #add_input_in_work:
+                #        latitude: "icb_latitude.dat"
+                #        longitude: "icb_longitude.dat"
+                #        length: "icb_length.dat"
+                #        height: "icb_height.dat"
+                #        scaling: "icb_scaling.dat"
+                #        felem: "icb_felem.dat"
                         #num_non_melted_icb_file: "num_non_melted_icb_file"
 
-                add_input_files:
-                        latitude: "latitude"
-                        longitude: "longitude"
-                        length: "length"
-                        height: "height"
-                        scaling: "scaling"
-                        felem: "felem"
+                #add_input_files:
+                #        latitude: "latitude"
+                #        longitude: "longitude"
+                #        length: "length"
+                #        height: "height"
+                #        scaling: "scaling"
+                #        felem: "felem"
                         #num_non_melted_icb_file: "num_non_melted_icb_file"
 
     log_files:
