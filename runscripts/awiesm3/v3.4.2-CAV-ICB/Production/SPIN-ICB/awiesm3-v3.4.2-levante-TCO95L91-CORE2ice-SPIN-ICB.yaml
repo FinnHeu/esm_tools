@@ -1,0 +1,102 @@
+general:
+    user: !ENV ${USER}
+    setup_name: "awiesm3"
+    version: "v3.4.2-CAV-ICB"
+    account: "ba1550"
+    compute_time: "01:00:00"
+    initial_date: "1850-01-01"
+    final_date: "1875-01-01"
+    base_dir: "/work/ba1550/a270186/simulations/awiesm3-v3.4.2-CAV-ICB/production/"
+    pool_dir: "/work/ab0995/a270186/model_inputs/AWIESM3/input/"
+    nday: 0
+    nmonth: 0
+    nyear: 1
+    use_venv: False
+    force_overwrite_in_file_movements: True
+
+computer:
+    taskset: true
+    mail_type: "ALL"
+    #mail_user: "finn.heukamp@awi.de,finn.heukamp@t-online.de"
+
+awiesm3:
+    postprocessing: false
+    model_dir: "/work/ab0995/a270186/esm_tools/model_codes/awiesm3-v3.4.2/CAV-ICB/awiesm3-v3.4.2/"
+
+fesom:
+    resolution: "CORE2ice"
+    mesh_dir: "/work/ab0995/a270186/model_inputs/fesom2/mesh/CORE2ice/"
+    namelist_dir: "${general.esm_namelist_dir}/fesom2/CMIP7_HR/"
+    time_step: 1200
+    nproc: 768
+    omp_num_threads: 1
+    lresume: false
+    restart_rate: 1
+    restart_unit: 'y'
+    restart_first: 1
+    
+    # Icebergs
+    with_icb: true
+    ini_iceberg_dir: "/work/ba1550/a270186/simulations/awiesm3-v3.4.2-CAV-ICB/preproduction/ini_icebergs_3/"
+    basin_file: "/home/a/a270186/esm_tools/plugins/basins/basins_antarctica.nc"
+    use_cav: true
+    scaling_factor: [250, 100, 30, 2, 1, 1]
+    ibareamax: 100
+    exclude_occupied_elements: False
+    
+    # Cmorization
+    cmip7_cmor_output: True
+    regrid_surface_output: False
+    regrid_3d_output: False
+    
+    # Namelist Changes
+    add_namelist_changes:
+        namelist.dyn:
+            dynamics_general:
+                ab_order: 3
+        namelist.config:
+            run_config:
+                use_cavity: .true.
+            icebergs:
+                steps_per_ib_step: 10
+                cell_saturation: 4
+
+lpj_guess:
+    resolution: "TCO95"
+    mip: cmip7
+    scenario: piControl
+    daily_output: False
+    nproc: 32
+    omp_num_threads: 4
+    lresume: false
+    fixed_CO2: 1850
+    fixed_ndep: 1850
+    fixed_LU: 1850
+    pool_dir: "/work/ab0995/a270186/model_inputs/AWIESM3/input/"
+
+oifs:
+    resolution: "TCO95"
+    levels: "L91"
+    prepifs_expid: ab45
+    input_expid: awi3
+    wam: true
+    time_step: 3600
+    nproc: 512
+    omp_num_threads: 8
+    mip: "cmip7"
+    scenario: "piControl"
+    lresume: false
+    cmip7_cmor_output: True
+
+oasis3mct:
+    use_lucia: false
+    lresume: true
+    time_step: 3600
+
+xios:
+    with_model:
+        - oifs
+        - fesom
+    nproc: 4
+    omp_num_threads: 32
+    compression_level: 3

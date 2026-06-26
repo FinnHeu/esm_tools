@@ -63,83 +63,67 @@ compression_level = 1        ! compression level for netCDF output (1=fastest, 9
 !   utemp, vtemp, usalt, vsalt    via ldiag_trflx=.true. (default monthly)
 !
 ! --- Daily output ---
-io_list =  'sst       ',1, 'd', 4,
-           'sss       ',1, 'd', 4,
-           'ssh       ',1, 'd', 4,
-           'uice      ',1, 'd', 4,
-           'vice      ',1, 'd', 4,
-           'a_ice     ',1, 'd', 4,
-           'm_snow    ',1, 'd', 4,
-           'ist       ',1, 'd', 4,
-           'MLD3      ',1, 'd', 4,
-           'h_ice     ',1, 'd', 4,
-           'h_snow    ',1, 'd', 4,
-           'unod_sfc  ',1, 'd', 4,
-           'vnod_sfc  ',1, 'd', 4,
-! --- Monthly 2D nodes ---
-           'm_ice     ',1, 'm', 4,
-           'MLD1      ',1, 'm', 4,
-           'MLD2      ',1, 'm', 4,
-           'fw        ',1, 'm', 4,
-           'fh        ',1, 'm', 4,
-           'thdgrarea ',1, 'm', 4,
-           'dyngrarea ',1, 'm', 4,
-           'thdgrice  ',1, 'm', 4,
-           'dyngrice  ',1, 'm', 4,
-           'thdgrsnw  ',1, 'm', 4,
-           'atmice_x  ',1, 'm', 4,
-           'atmice_y  ',1, 'm', 4,
-           'iceoce_x  ',1, 'm', 4,
-           'iceoce_y  ',1, 'm', 4,
-           'fw_ice    ',1, 'm', 4,
-           'fw_snw    ',1, 'm', 4,
-           'virtsalt  ',1, 'm', 4,
-!          'realsalt  ',1, 'm', 4,  ! disabled: dead under which_ale='linfs' (use_virt_salt=.true., real-salt branch in ice_thermo_cpl.F90 unreachable); re-enable for non-linfs runs
-           'relaxsalt ',1, 'm', 4,   ! enabled: ~0 in coupled HR (no SSS restoring) — that zero IS the correct CMIP vsfcorr (no flux correction applied); shipping it as positive proof of correctness.
-           'qcon      ',1, 'm', 4,
-           'apnd      ',1, 'm', 4,
-           'hpnd      ',1, 'm', 4,
-           'ipnd      ',1, 'm', 4,
-           'evap      ',1, 'm', 4,
-           'prec      ',1, 'm', 4,
-           'snow      ',1, 'm', 4,
-           'runoff    ',1, 'm', 4,
-           'opottemprmadvect',1, 'm', 8,
-           'opottempdiff',1, 'm', 8,
-           'osalttend ',1, 'm', 8,
-           'osaltrmadvect',1, 'm', 8,
-           'osaltdiff ',1, 'm', 8,
-           'calving_AA',1, 'm', 4,
-           'icb       ',1, 'm', 4,
-! --- Monthly 2D elements ---
-           'tx_sur    ',1, 'm', 4,
-           'ty_sur    ',1, 'm', 4,
-           'strength_ice',1, 'm', 4,  ! enabled. NOTE: mEVP (whichEVP=1) / aEVP (whichEVP=2) currently use a local 'pressure' var and leave ice%work%ice_strength at zero; only whichEVP=0 writes it. Stream wired up so a forthcoming ice_maEVP.F90 patch (populate ice%work%ice_strength alongside pressure_fac) makes CMIP sicompstren correct with no further config change.
-           'sgm11     ',1, 'm', 4,
-           'sgm12     ',1, 'm', 4,
-           'sgm22     ',1, 'm', 4,
-! --- Monthly 3D nodes, cell-center ---
-           'temp      ',1, 'm', 4,
-           'salt      ',1, 'm', 8,
-           'unod      ',1, 'm', 4,
-           'vnod      ',1, 'm', 4,
-           'hnode     ',1, 'm', 4,
-           'rsdoabsorb',1, 'm', 4,
-           'sigma0    ',1, 'm', 4,
-! --- Monthly 3D nodes, interface levels ---
-           'w         ',1, 'm', 4,
-           'bolus_w   ',1, 'm', 4,
-           'N2        ',1, 'm', 4,
-           'Kv        ',1, 'm', 4,
-! --- Monthly 3D elements, cell-center ---
-           'u         ',1, 'm', 4,
-           'v         ',1, 'm', 4,
-           'bolus_u   ',1, 'm', 4,
-           'bolus_v   ',1, 'm', 4,
-! --- Monthly 3D elements, interface levels ---
-           'Av        ',1, 'm', 4,
-! --- Density MOC (expands to 11 streams via CASE('dMOC') when ldiag_dMOC=.true.) ---
-           'dMOC      ',1, 'm', 4,
+io_list =  'sst       ',1, 'm', 4,  ! sea surface temperature [C]
+           'sss       ',1, 'm', 4,  ! sea surface salinity [psu]
+           'ssh       ',1, 'm', 4,  ! sea surface elevation [m]
+           'uice      ',1, 'm', 4,  ! ice velocity x [m/s]
+           'vice      ',1, 'm', 4,  ! ice velocity y [m/s]
+           'a_ice     ',1, 'm', 4,  ! ice concentration [%]
+           'm_snow    ',1, 'm', 4,  ! snow height per unit area [m]
+           'ist       ',1, 'm', 4,  ! ice surface temperature [K]
+           'h_ice     ',1, 'm', 4,  ! ice thickness over ice-covered fraction [m]
+           'h_snow    ',1, 'm', 4,  ! snow thickness over ice-covered fraction [m]
+           'm_ice     ',1, 'm', 4,  ! ice height per unit area [m]
+           'MLD1      ',1, 'm', 4,  ! Mixed Layer Depth [m] Large et al. 1997
+           'MLD2      ',1, 'm', 4,  ! Mixed Layer Depth [m] Levitus threshold
+           'MLD3      ',1, 'm', 4,  ! Mixed Layer Depth [m] Griffies 2016
+           'fw        ',1, 'm', 4,  ! fresh water flux [m/s]
+           'fh        ',1, 'm', 4,  ! heat flux [W/m2]
+           'thdgrarea ',1, 'm', 4,  ! thermodynamic growth rate ice concentration [frac/s]
+           'dyngrarea ',1, 'm', 4,  ! dynamic growth rate ice concentration [frac/s]
+           'thdgrice  ',1, 'm', 4,  ! thermodynamic growth rate ice [m/s]
+           'dyngrice  ',1, 'm', 4,  ! dynamic growth rate ice [m/s]
+           'thdgrsnw  ',1, 'm', 4,  ! thermodynamic growth rate snow [m/s]
+           'atmice_x  ',1, 'm', 4,  ! stress atmice x [N/m2]
+           'atmice_y  ',1, 'm', 4,  ! stress atmice y [N/m2]
+           'iceoce_x  ',1, 'm', 4,  ! stress iceoce x [N/m2]
+           'iceoce_y  ',1, 'm', 4,  ! stress iceoce y [N/m2]
+           'fw_ice    ',1, 'm', 4,  ! fresh water flux from ice [m/s]
+           'fw_snw    ',1, 'm', 4,  ! fresh water flux from snow [m/s]
+           'virtsalt  ',1, 'm', 4,  ! virtual salt flux [m/s*psu]
+           'relaxsalt ',1, 'm', 4,  ! relaxation salt flux [m/s*psu]
+           'qcon      ',1, 'm', 4,  ! conductive heat flux [W/m2]
+           'apnd      ',1, 'm', 4,  ! melt pond area fraction [none]
+           'hpnd      ',1, 'm', 4,  ! melt pond depth [m]
+           'ipnd      ',1, 'm', 4,  ! melt pond ice thickness [m]
+           'evap      ',1, 'm', 4,  ! evaporation [m/s]
+           'prec      ',1, 'm', 4,  ! precipitation rain [m/s]
+           'snow      ',1, 'm', 4,  ! precipitation snow [m/s]
+           'runoff_liquid',1, 'm', 4,  ! river runoff liquid [m/s]
+           'runoff_solid',1, 'm', 4,  ! river runoff solid [m/s]
+           'calving_AA',1, 'm', 4,  ! Antarctic ice shelf calving flux [m/s]
+           'icb       ',1, 'm', 4,  ! iceberg outputs (multiple variables)
+           'tx_sur    ',1, 'm', 4,  ! zonal wind stress to ocean [N/m2]
+           'ty_sur    ',1, 'm', 4,  ! meridional wind stress to ocean [N/m2]
+           'strength_ice',1, 'm', 4,  ! ice strength [Pa] (NOTE: mEVP/aEVP use local 'pressure' var; only whichEVP=0 writes it)
+           'temp      ',1, 'm', 4,  ! temperature [C]
+           'salt      ',1, 'm', 8,  ! salinity [psu]
+           'dens_sigma0    ',1, 'm', 4,  ! potential density [kg/m3]
+           'dens_insitu',1, 'm', 4,  ! in-situ density [kg/m3]
+           'unod      ',1, 'm', 4,  ! zonal velocity at nodes [m/s]
+           'vnod      ',1, 'm', 4,  ! meridional velocity at nodes [m/s]
+           'hnode     ',1, 'm', 4,  ! vertical layer thickness [m]
+           'rsdoabsorb',1, 'm', 4,  ! absorbed shortwave radiation [W/m2]
+           'w         ',1, 'm', 4,  ! vertical velocity [m/s]
+           'bolus_w   ',1, 'm', 4,  ! GM bolus velocity W [m/s]
+           'N2        ',1, 'm', 4,  ! brunt väisälä frequency [1/s2]
+           'Kv        ',1, 'm', 4,  ! vertical diffusivity Kv [m2/s]
+           'u         ',1, 'm', 4,  ! zonal velocity [m/s]
+           'v         ',1, 'm', 4,  ! meridional velocity [m/s]
+           'bolus_u   ',1, 'm', 4,  ! GM bolus velocity U [m/s]
+           'bolus_v   ',1, 'm', 4,  ! GM bolus velocity V [m/s]
+           'Av        ',1, 'm', 4,  ! vertical viscosity Av [m2/s]
+           'dMOC      ',1, 'm', 4,  ! fluxes for density MOC (multiple variables)
 /
 
 ! ============================================================================

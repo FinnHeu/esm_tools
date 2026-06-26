@@ -1,0 +1,125 @@
+general:
+    user: !ENV ${USER}
+    setup_name: "awiesm3"
+    version: "v3.4.2-CAV-ICB"
+    account: "ba1550"
+    compute_time: "05:00:00"
+    initial_date: "1854-01-01"
+    final_date: "1856-01-01"
+    base_dir: "/work/ba1550/a270186/simulations/awiesm3-v3.4.2-CAV-ICB/production/"
+    pool_dir: "/work/ab0995/a270186/model_inputs/AWIESM3/input/"
+    nday: 0
+    nmonth: 0
+    nyear: 1
+    use_venv: False
+    force_overwrite_in_file_movements: True
+
+computer:
+    taskset: true
+    mail_type: "ALL"
+    mail_user: "finn.heukamp@t-online.de"
+
+awiesm3:
+    postprocessing: false
+    model_dir: "/work/ab0995/${user}/esm_tools/model_codes/awiesm3-v3.4.2/CAV-ICB/awiesm3-v3.4.2/"
+
+fesom:
+    resolution: "DARS2cav"
+    mesh_dir: "/work/ab0995/a270186/model_inputs/fesom2/mesh/DARS2cav/"
+    namelist_dir: "${general.esm_namelist_dir}/fesom2/CMIP7_HR/"
+    time_step: 360    #300
+    nproc: 5120       #6400
+    omp_num_threads: 2
+    lresume: true
+    restart_rate: 1
+    restart_unit: 'y'
+    restart_first: 1
+    ini_parent_exp_id: "foo"
+    ini_parent_date: "${prev_date}"
+    ini_restart_dir: "/work/ba1550/a270186/simulations/awiesm3-v3.4.2-CAV-ICB/production/CAV-INI/restart/fesom/"
+    choose_general.run_number:
+        1:
+            restart_in_sources:
+                par_oce_restart: /${ini_restart_dir}/fesom.1853.oce.restart/*.nc
+                par_ice_restart: /${ini_restart_dir}/fesom.1853.ice.restart/*.nc
+    
+    # Icebergs
+    with_icb: true
+    ini_iceberg_dir: "foo"
+    basin_file: "/home/a/a270186/esm_tools/plugins/basins/basins_antarctica.nc"
+    use_cav: true
+    scaling_factor: [100, 50, 25, 1, 1, 1]
+    ibareamax: 100
+
+    # Cmorization
+    cmip7_cmor_output: True
+    regrid_surface_output: False
+    regrid_3d_output: False
+
+    # Namelist Changes
+    add_namelist_changes:
+        namelist.dyn:
+            dynamics_general:
+                ab_order: 3
+        namelist.config:
+            run_config:
+                use_cavity: .true.
+            icebergs:
+                steps_per_ib_step: 8
+                cell_saturation: 4
+
+
+lpj_guess:
+    resolution: "TCO319"
+    mip: cmip7
+    scenario: piControl
+    daily_output: False
+    nproc: 64
+    omp_num_threads: 16
+    lresume: true
+    ini_parent_exp_id: "foo"
+    ini_parent_date: "${prev_date}"
+    ini_restart_dir: "/work/ba1550/a270186/simulations/awiesm3-v3.4.2-CAV-ICB/production/CAV-INI/restart/lpj_guess/lpjg_state_1854/"
+    choose_general.run_number:
+        1:
+            restart_in_sources:
+                state: /${ini_restart_dir}/*
+    fixed_CO2: 1850
+    fixed_ndep: 1850
+    fixed_LU: 1850
+
+oifs:
+    resolution: "TCO319"
+    levels: "L137"
+    prepifs_expid: abns
+    input_expid: awi3
+    wam: true
+    time_step: 1200
+    nproc: 640
+    omp_num_threads: 4
+    mip: "cmip7"
+    scenario: "piControl"
+    lresume: true
+    ini_restart_dir: "/work/ba1550/a270186/simulations/awiesm3-v3.4.2-CAV-ICB/production/CAV-INI/restart/oifs/"
+    ini_restart_exp_id: "CAV-INI"
+    ini_restart_date: '1853-12-31T23:40:00'
+    ini_pseudo_initial_date: "1853-01-01"
+    prev_run_config_file: "/work/ba1550/a270186/simulations/awiesm3-v3.4.2-CAV-ICB/production/CAV-INI/config/CAV-INI_finished_config.yaml_18530101-18531231"
+
+    cmip7_cmor_output: True
+
+oasis3mct:
+    use_lucia: false
+    lresume: true
+    time_step: 3600
+
+xios:
+    with_model:
+        - oifs
+        - fesom
+    nproc: 16
+    omp_num_threads: 128
+    compression_level: 3
+
+#rnfmap:
+#    input_dir: "/work/ba1550/a270301/model_inputs/DARS2cav/runoff_map_modified/"
