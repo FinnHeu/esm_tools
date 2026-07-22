@@ -3,9 +3,9 @@ general:
     setup_name: "awiesm3"
     version: "v3.4.2-CAV-ICB"
     account: "ba1550"
-    compute_time: "04:30:00"
+    compute_time: "03:45:00" # 03:30
     initial_date: "1850-01-01"
-    final_date: "1900-01-01"
+    final_date: "1875-01-01"
     base_dir: "/work/ba1550/a270186/simulations/awiesm3-v3.4.2-CAV-ICB/production/"
     pool_dir: "/work/ab0995/a270186/model_inputs/AWIESM3/input/"
     nday: 0
@@ -27,7 +27,7 @@ fesom:
     resolution: "DARS2cav"
     mesh_dir: "/work/ab0995/a270186/model_inputs/fesom2/mesh/DARS2cav/"
     namelist_dir: "${general.esm_namelist_dir}/fesom2/CMIP7_HR/"
-    time_step: 360    #300
+    time_step: 360    #360
     nproc: 5120       #6400
     omp_num_threads: 2
     lresume: true
