@@ -4,8 +4,8 @@ general:
     version: "v3.4.2-CAV-ICB"
     account: "ba1550"
     compute_time: "03:45:00" # 03:30
-    initial_date: "1850-01-01"
-    final_date: "1875-01-01"
+    initial_date: "1875-01-01"
+    final_date: "1900-01-01"
     base_dir: "/work/ba1550/a270186/simulations/awiesm3-v3.4.2-CAV-ICB/production/"
     pool_dir: "/work/ab0995/a270186/model_inputs/AWIESM3/input/"
     nday: 0
@@ -13,6 +13,9 @@ general:
     nyear: 1
     use_venv: False
     force_overwrite_in_file_movements: True
+
+    # CAV-ICB-PICTRL RUNTIME DIR FOR RESTARTS
+    ini_parent_dir: "/work/ba1550/a270186/simulations/awiesm3-v3.4.2-CAV-ICB/production/CAV-ICB-PICTRL/"
 
 computer:
     taskset: true
@@ -36,16 +39,16 @@ fesom:
     restart_first: 1
     ini_parent_exp_id: "foo"
     ini_parent_date: "${prev_date}"
-    ini_restart_dir: "/work/ba1550/a270186/simulations/awiesm3-v3.4.2-CAV-ICB/production/restarts/CAV-ICB-PICTRL/fesom/CAV-refilled/"
+    ini_restart_dir: "${general.ini_parent_dir}/restarts/fesom/"
     choose_general.run_number:
         1:
             restart_in_sources:
-                par_oce_restart: /${ini_restart_dir}/fesom.1849.oce.restart/*.nc
-                par_ice_restart: /${ini_restart_dir}/fesom.1849.ice.restart/*.nc
+                par_oce_restart: /${ini_restart_dir}/fesom.1874.oce.restart/*.nc
+                par_ice_restart: /${ini_restart_dir}/fesom.1874.ice.restart/*.nc
     
     # Icebergs
     with_icb: true
-    ini_iceberg_dir: "/work/ba1550/a270186/simulations/awiesm3-v3.4.2-CAV-ICB/production/restarts/CAV-ICB-PICTRL/fesom/icebergs/"
+    ini_iceberg_dir: "${general.ini_parent_dir}/run_18750101-18760101/"
     basin_file: "/home/a/a270186/esm_tools/plugins/basins/basins_antarctica.nc"
     use_cav: true
     scaling_factor: [250, 100, 30, 2, 1, 1]
@@ -65,9 +68,13 @@ fesom:
         namelist.config:
             run_config:
                 use_cavity: .true.
+                turn_off_cav_hf: False
+                turn_off_cav_fw: False
             icebergs:
                 steps_per_ib_step: 10
                 cell_saturation: 4
+                turn_off_hf: True 
+                turn_off_fw: True
 
 lpj_guess:
     resolution: "TCO319"
@@ -79,11 +86,11 @@ lpj_guess:
     lresume: true
     ini_parent_exp_id: "foo"
     ini_parent_date: "${prev_date}"
-    ini_restart_dir: "/work/ba1550/a270186/simulations/awiesm3-v3.4.2-CAV-ICB/production/restarts/CAV-ICB-PICTRL/lpjguess/"
+    ini_restart_dir: "${general.ini_parent_dir}/restarts/lpj_guess/"
     choose_general.run_number:
         1:
             restart_in_sources:
-                state: /${ini_restart_dir}/*
+                state: /${ini_restart_dir}/lpjg_state_1875/*
     fixed_CO2: 1850
     fixed_ndep: 1850
     fixed_LU: 1850
@@ -99,8 +106,15 @@ oifs:
     omp_num_threads: 4
     mip: "cmip7"
     scenario: "piControl"
-    lresume: false
     cmip7_cmor_output: True
+
+    # Restart
+    lresume: true
+    ini_restart_dir: "${general.ini_parent_dir}/restart/oifs/"
+    ini_restart_exp_id: "foo"
+    ini_restart_date: '1874-12-31T23:40:00' #—> Last oIFS timestep which ran (at 1200s timestep (20min) this is 23:40:00)
+    ini_pseudo_initial_date: "1874-01-01" # Start date of last oIFS leg (with 2 year lags this is 1848-01-01)
+    prev_run_config_file: "${general.ini_parent_dir}/config/CAV-ICB-PICTRL_finished_config.yaml_18740101-18741231"  
 
 oasis3mct:
     use_lucia: false
