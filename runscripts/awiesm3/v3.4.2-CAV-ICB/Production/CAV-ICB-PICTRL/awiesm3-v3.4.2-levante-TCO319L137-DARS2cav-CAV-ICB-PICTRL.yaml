@@ -5,7 +5,7 @@ general:
     account: "ba1550"
     compute_time: "03:45:00" # 03:30
     initial_date: "1850-01-01"
-    final_date: "1875-01-01"
+    final_date: "1876-01-01"
     base_dir: "/work/ba1550/a270186/simulations/awiesm3-v3.4.2-CAV-ICB/production/"
     pool_dir: "/work/ab0995/a270186/model_inputs/AWIESM3/input/"
     nday: 0

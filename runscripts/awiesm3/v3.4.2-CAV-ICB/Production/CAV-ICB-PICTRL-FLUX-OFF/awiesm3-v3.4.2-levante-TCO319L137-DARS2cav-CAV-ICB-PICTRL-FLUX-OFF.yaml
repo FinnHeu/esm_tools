@@ -2,8 +2,8 @@ general:
     user: !ENV ${USER}
     setup_name: "awiesm3"
     version: "v3.4.2-CAV-ICB"
-    account: "ba1550"
-    compute_time: "03:45:00" # 03:30
+    account: "ab0995"
+    compute_time: "04:45:00" # 03:30
     initial_date: "1875-01-01"
     final_date: "1900-01-01"
     base_dir: "/work/ba1550/a270186/simulations/awiesm3-v3.4.2-CAV-ICB/production/"
@@ -20,11 +20,11 @@ general:
 computer:
     taskset: true
     mail_type: "ALL"
-    mail_user: "finn.heukamp@awi.de"
+    mail_user: "mukulika.pahari@awi.de" #finn.heukamp@awi.de
 
 awiesm3:
     postprocessing: false
-    model_dir: "/work/ab0995/${user}/esm_tools/model_codes/awiesm3-v3.4.2/CAV-ICB/awiesm3-v3.4.2/"
+    model_dir: "/work/ab0995/a270301/models/awiesm3-v3.4.2-CAV-ICB/"
 
 fesom:
     resolution: "DARS2cav"
@@ -39,7 +39,7 @@ fesom:
     restart_first: 1
     ini_parent_exp_id: "foo"
     ini_parent_date: "${prev_date}"
-    ini_restart_dir: "${general.ini_parent_dir}/restarts/fesom/"
+    ini_restart_dir: "${general.ini_parent_dir}/restart/fesom/"
     choose_general.run_number:
         1:
             restart_in_sources:
@@ -49,7 +49,7 @@ fesom:
     # Icebergs
     with_icb: true
     ini_iceberg_dir: "${general.ini_parent_dir}/run_18750101-18760101/"
-    basin_file: "/home/a/a270186/esm_tools/plugins/basins/basins_antarctica.nc"
+    basin_file: "/work/ab0995/a270301/esm_tools/plugins/basins/basins_antarctica.nc"
     use_cav: true
     scaling_factor: [250, 100, 30, 2, 1, 1]
     ibareamax: 100
@@ -86,7 +86,7 @@ lpj_guess:
     lresume: true
     ini_parent_exp_id: "foo"
     ini_parent_date: "${prev_date}"
-    ini_restart_dir: "${general.ini_parent_dir}/restarts/lpj_guess/"
+    ini_restart_dir: "${general.ini_parent_dir}/restart/lpj_guess/"
     choose_general.run_number:
         1:
             restart_in_sources:

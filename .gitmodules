@@ -2,3 +2,6 @@
 	path = src/esm_tests/resources
 	url = https://github.com/esm-tools/esm_tests_info
 	branch = release
+[submodule "runscripts/awiesm3/v3.4.2-CAV-ICB/Production/CAV-ICB-PICTRL-FLUX-ON/plugins/AWIESM3-v3.4.x-CAV-ICB"]
+	path = runscripts/awiesm3/v3.4.2-CAV-ICB/Production/CAV-ICB-PICTRL-FLUX-ON/plugins/AWIESM3-v3.4.x-CAV-ICB
+	url = git@github.com:FinnHeu/AWIESM3-v3.4.x-CAV-ICB.git

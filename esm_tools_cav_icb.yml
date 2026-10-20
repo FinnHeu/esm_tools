@@ -125,8 +125,7 @@ dependencies:
       - asttokens==3.0.1
       - async-lru==2.0.5
       - attrs==26.1.0
-      - awi-esm-v3-4-1-cav-icb==0.1.0
-      - awi-esm-v3-4-x-cav-icb==0.1.0
+      # - awi-esm-v3-4-x-cav-icb==0.1.0
       - babel==2.18.0
       - beautifulsoup4==4.14.3
       - bleach==6.2.0
